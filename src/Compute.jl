@@ -105,8 +105,27 @@ function mysolve(model::MyValueIterationModel, problem::MyMDPProblemModel; ϵ::F
     Uold = zeros(Float64, number_of_states); # temporary storage for old value function
 
     # TODO: Implement the value iteration with convergence checking algorithm
-    throw(ErrorError("Oooops!: You need to implement the value iteration with convergence checking algorithm!"))
+    #throw(ErrorError("Oooops!: You need to implement the value iteration with convergence checking algorithm!"))
+    while converged == false
+        for i in 1:number_of_states
+            Uold[i] = U[i]
+        end
 
+        for s in 1:number_of_states
+            for a in 1:number_of_actions
+                tmp[a] = _lookahead(problem, Uold, s, a)
+            end
+            U[s] = maximum(tmp)
+        end
+        # check for convergence
+        if (norm(U - Uold, Inf) ≤ ϵ) || counter ≥ k_max
+            converged = true
+        end
+        if counter ≥ k_max
+        println("Warning: Value Iteration did not converge within the maximum number of iterations.");
+        end
+        counter += 1
+    end
     return MyValueIterationSolution(problem, U); # wrap and return
 end
 
